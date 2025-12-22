@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model prueba {
+  id         Int       @id @default(autoincrement())
+  id_user    Int?
+  id_profile Int?
+  create_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+}
+
+model Categorias {
+  id_categoria Int         @id @default(autoincrement())
+  nombre       String?     @db.VarChar(255)
+  descripcion  String?     @db.VarChar(255)
+  Productos    Productos[]
+}
+
+model Productos {
+  id_producto    Int         @id @default(autoincrement())
+  nombre         String?     @db.VarChar(255)
+  descripcion    String?     @db.VarChar(255)
+  precio         Decimal?    @db.Decimal(10, 2)
+  fecha_registro DateTime?   @db.Date
+  id_categoria   Int?
+  Categorias     Categorias? @relation(fields: [id_categoria], references: [id_categoria], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Sucursales {
+  id_sucursal Int     @id @default(autoincrement())
+  nombre      String? @db.VarChar(255)
+  direccion   String? @db.VarChar(255)
+  ruc         String? @db.VarChar(255)
+}
+
+model persons {
+  id                  Int                  @id @default(autoincrement())
+  type_id             Int?
+  name                String?              @db.VarChar(255)
+  last_name           String?              @db.VarChar(255)
+  email               String?              @db.VarChar(255)
+  birthday_day        DateTime?            @db.Date
+  phone               String?              @db.VarChar(255)
+  address             String?              @db.VarChar(255)
+  type_identification type_identification? @relation(fields: [type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users               users[]
+}
+
+model profiles {
+  id             Int              @id @default(autoincrement())
+  name           String?          @db.VarChar(255)
+  rol_id         Int?
+  user_created   Int?
+  updated_by     Int?
+  created_by     Int?
+  deleted_by     Int?
+  created_at     DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?        @db.Timestamp(6)
+  deleted_at     DateTime?        @db.Timestamp(6)
+  roles          roles?           @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_profiles users_profiles[]
+}
+
+model roles {
+  id           Int        @id @default(autoincrement())
+  name         String?    @db.VarChar(255)
+  user_created String?    @db.VarChar(255)
+  updated_by   String?    @db.VarChar(255)
+  created_by   Int?
+  deleted_by   Int?
+  created_at   DateTime?  @default(now()) @db.Timestamp(6)
+  updated_at   DateTime?  @db.Timestamp(6)
+  deleted_at   DateTime?  @db.Timestamp(6)
+  profiles     profiles[]
+}
+
+model type_identification {
+  id      Int       @id @default(autoincrement())
+  name    String?   @db.VarChar(255)
+  persons persons[]
+}
+
+model users {
+  id             Int              @id @default(autoincrement())
+  person_id      Int?
+  user_name      String?          @db.VarChar(255)
+  password       String?          @db.VarChar(255)
+  created_at     DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?        @db.Timestamp(6)
+  user_created   String?          @db.VarChar(255)
+  deleted_at     DateTime?        @db.Timestamp(6)
+  first_login    Boolean?
+  attempts       Int?
+  persons        persons?         @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_profiles users_profiles[]
+}
+
+model users_profiles {
+  id         Int       @id @default(autoincrement())
+  id_user    Int?
+  id_profile Int?
+  create_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+  profiles   profiles? @relation(fields: [id_profile], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users?    @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
