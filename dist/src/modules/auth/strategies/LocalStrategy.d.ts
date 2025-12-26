@@ -1,4 +1,4 @@
-import { AuthService } from "./auth.service";
+import { AuthService } from "../auth.service";
 import { Strategy } from "passport-local";
 declare const LocalStrategy_base: new (...args: [] | [options: import("passport-local").IStrategyOptionsWithRequest] | [options: import("passport-local").IStrategyOptions]) => Strategy & {
     validate(...args: any[]): unknown;

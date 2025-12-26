@@ -1,12 +1,44 @@
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    create(createUserDto: CreateUserDto): string;
-    findAll(): string;
-    findOne(id: string): string;
-    update(id: string, updateUserDto: UpdateUserDto): string;
-    remove(id: string): string;
+    register(createUserDto: CreateUserDto): Promise<{
+        temporaryPassword: string;
+        persons: {
+            name: string | null;
+            last_name: string | null;
+            email: string | null;
+            type_id: number | null;
+            birthday_day: Date | null;
+            phone: string | null;
+            address: string | null;
+            id: number;
+        } | null;
+        user_name: string | null;
+        id: number;
+        person_id: number | null;
+        created_at: Date | null;
+        updated_at: Date | null;
+        user_created: string | null;
+        deleted_at: Date | null;
+        first_login: boolean | null;
+        attempts: number | null;
+    }>;
+    getProfile(req: any): {
+        message: string;
+        user: any;
+    };
+    changePassword(req: any, newPassword: string): Promise<{
+        user_name: string | null;
+        id: number;
+        person_id: number | null;
+        password: string | null;
+        created_at: Date | null;
+        updated_at: Date | null;
+        user_created: string | null;
+        deleted_at: Date | null;
+        first_login: boolean | null;
+        attempts: number | null;
+    }>;
 }

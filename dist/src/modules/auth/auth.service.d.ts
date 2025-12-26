@@ -1,16 +1,23 @@
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { UsersService } from '../users/users.service';
+import { UserValidated } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 export declare class AuthService {
     private readonly userServices;
-    constructor(userServices: UsersService);
+    private jwtService;
+    constructor(userServices: UsersService, jwtService: JwtService);
     validateUser(payload: {
         user_name: string;
         pass: string;
     }): Promise<any>;
-    create(createAuthDto: CreateAuthDto): string;
+    login(user: UserValidated): Promise<{
+        access_token: string;
+        first_login: boolean | undefined;
+        user: {
+            id: number;
+            user_name: string;
+        };
+    }>;
     findAll(): string;
     findOne(id: number): string;
-    update(id: number, updateAuthDto: UpdateAuthDto): string;
     remove(id: number): string;
 }

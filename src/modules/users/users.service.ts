@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'prisma/PrismaService.service';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +14,8 @@ export class UsersService {
 
 
   async create(createUserDto: CreateUserDto) {
+
+    const temporaryPassword = randomBytes(4).toString('hex');
     const existingUser = await this.prisma.users.findFirst({
       where: { user_name: createUserDto.user_name },
     });
@@ -23,12 +26,13 @@ export class UsersService {
       throw new BadRequestException('El usuario o el correo ya están registrados');
     }
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(createUserDto.password, salt)
+    const hashedPassword = await bcrypt.hash(temporaryPassword, salt)
     const newUser = await this.prisma.users.create({
       data: {
         user_name: createUserDto.user_name,
         password: hashedPassword,
         user_created: 'SISTEMA',
+        first_login: true,
 
         persons: {
           create: {
@@ -48,8 +52,10 @@ export class UsersService {
     });
 
     const { password, ...result } = newUser;
-    return result;
-
+    return {
+      ...result,
+      temporaryPassword,
+    };
 
 
   }
@@ -63,14 +69,30 @@ export class UsersService {
 
 
 
-    return this.prisma.users.findFirst({ where: { user_name: username } });
+    return this.prisma.users.findFirst({
+      where: { user_name: username },
+      include: {
+        persons: true,
+        users_profiles: true
+
+
+      }
+    });
 
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+  async updateFirstPassword(userId: number, newPass: string) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPass, salt);
 
+    return this.prisma.users.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword,
+        first_login: false,
+      },
+    });
+  }
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }

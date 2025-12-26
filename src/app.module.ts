@@ -3,12 +3,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config/dist/config.module';
 import { PrismaModule } from 'prisma/prisma.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
 
 
-    PrismaModule
+    PrismaModule,
+    AuthModule,
+    UsersModule
 
     ,
     ConfigModule.forRoot({

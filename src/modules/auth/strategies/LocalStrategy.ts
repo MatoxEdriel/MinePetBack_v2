@@ -2,7 +2,7 @@
 
 import { PassportStrategy } from "@nestjs/passport";
 import { AuthService } from "../auth.service";
-import { UnauthorizedException } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { Strategy } from "passport-local";
 
 //Con esto puedes cambiar la strategia de como iniciar sesion y pues podrias importa
@@ -11,6 +11,7 @@ import { Strategy } from "passport-local";
 //!esta libreria entonces transofmra la venida de dato en datos mas limpios para hacer dichas validaciones 
 //? Este se encarga de funcionar como un intermediario es decir aqui podre validarlo sin embeargo 
 //Se importo le clase de passportstrategy 
+@Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
 
     constructor(private authService: AuthService) {

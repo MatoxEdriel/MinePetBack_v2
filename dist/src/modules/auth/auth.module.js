@@ -11,15 +11,30 @@ const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const auth_controller_1 = require("./auth.controller");
 const users_module_1 = require("../users/users.module");
-const LocalStrategy_1 = require("./LocalStrategy");
+const LocalStrategy_1 = require("./strategies/LocalStrategy");
+const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
+const JwtStrategy_1 = require("./strategies/JwtStrategy");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, LocalStrategy_1.LocalStrategy],
-        imports: [users_module_1.UsersModule],
+        providers: [auth_service_1.AuthService, LocalStrategy_1.LocalStrategy, JwtStrategy_1.JwtStrategy],
+        exports: [auth_service_1.AuthService, jwt_1.JwtModule],
+        imports: [users_module_1.UsersModule,
+            jwt_1.JwtModule.registerAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: async (configService) => {
+                    return {
+                        secret: configService.get('JWT_SECRET'),
+                        signOptions: { expiresIn: '1d' },
+                    };
+                },
+            })
+        ],
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map

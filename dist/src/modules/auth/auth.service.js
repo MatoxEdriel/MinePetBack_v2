@@ -46,10 +46,13 @@ exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("../users/users.service");
 const bcrypt = __importStar(require("bcrypt"));
+const jwt_1 = require("@nestjs/jwt");
 let AuthService = class AuthService {
     userServices;
-    constructor(userServices) {
+    jwtService;
+    constructor(userServices, jwtService) {
         this.userServices = userServices;
+        this.jwtService = jwtService;
     }
     async validateUser(payload) {
         const user = await this.userServices.findByUserName(payload.user_name);
@@ -58,17 +61,25 @@ let AuthService = class AuthService {
             return result;
         }
     }
-    create(createAuthDto) {
-        return 'This action adds a new auth';
+    async login(user) {
+        const payload = {
+            username: user.user_name,
+            sub: user.id,
+        };
+        return {
+            access_token: this.jwtService.sign(payload),
+            first_login: user.first_login,
+            user: {
+                id: user.id,
+                user_name: user.user_name
+            }
+        };
     }
     findAll() {
         return `This action returns all auth`;
     }
     findOne(id) {
         return `This action returns a #${id} auth`;
-    }
-    update(id, updateAuthDto) {
-        return `This action updates a #${id} auth`;
     }
     remove(id) {
         return `This action removes a #${id} auth`;
@@ -77,6 +88,7 @@ let AuthService = class AuthService {
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [users_service_1.UsersService])
+    __metadata("design:paramtypes", [users_service_1.UsersService,
+        jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map
