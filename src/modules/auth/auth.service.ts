@@ -27,10 +27,12 @@ export class AuthService {
 
       return result;
     }
-
-
     //poner validaciones 
   }
+
+  
+
+
 
 
   create(createAuthDto: CreateAuthDto) {
