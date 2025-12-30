@@ -1,3 +1,5 @@
+import { MenuController } from './modules/menu/menu.controller';
+import { MenuService } from './modules/menu/menu.service';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,6 +10,7 @@ import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
+
 
 
     PrismaModule,
@@ -25,7 +28,9 @@ import { UsersModule } from './modules/users/users.module';
 
 
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [
+    MenuController, AppController],
+  providers: [
+    MenuService, AppService],
 })
 export class AppModule { }
