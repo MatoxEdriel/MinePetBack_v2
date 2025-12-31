@@ -27,12 +27,7 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
       })
-
-
-
   )
-
-
   await app.listen(port);
 }
 bootstrap();
