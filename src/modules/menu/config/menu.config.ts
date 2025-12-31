@@ -6,7 +6,7 @@ export const MASTER_MENU: MenuSection[] = [
         items: [
             {
                 label: 'Dashboard',
-                icon: 'pi pi-home',
+                icon: 'fa-solid fa-house',
                 path: '/dashboard/home',
                 roles: ['ADMIN', 'Tecnico', 'Vendedor']
             }
@@ -17,18 +17,18 @@ export const MASTER_MENU: MenuSection[] = [
         items: [
             {
                 label: 'Usuarios',
-                icon: 'pi pi-users',
+                icon: 'fa-solid fa-users',
                 path: '/dashboard/users',
                 roles: ['ADMIN']
             },
             {
                 label: 'Inventario',
-                icon: 'pi pi-box',
+                icon: 'fa-solid fa-box-open',
                 path: '/dashboard/inventory',
                 roles: ['Admin', 'Técnico'],
                 children: [
-                    { label: 'Ver Stock', icon: 'pi pi-eye', path: '/dashboard/inventory/list' },
-                    { label: 'Entradas/Salidas', icon: 'pi pi-sort-alt', path: '/dashboard/inventory/movements' }
+                    { label: 'Ver Stock', icon: 'fa-solid fa-list', path: '/dashboard/inventory/list' },
+                    { label: 'Entradas/Salidas', icon: 'fa-solid fa-arrow-right-arrow-left', path: '/dashboard/inventory/movements' }
                 ]
             }
         ]
