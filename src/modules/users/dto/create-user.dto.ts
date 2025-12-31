@@ -32,6 +32,13 @@ export class CreateUserDto {
     @IsOptional()
     type_id?: number;
 
+
+    @IsInt({ message: 'Rol que tendra el usuario' })
+    @IsOptional()
+    role_id?: number;
+
+
+
     @IsDateString({}, { message: 'La fecha debe ser formato ISO8601 (YYYY-MM-DD)' })
     @IsOptional()
     birthday_day?: string;

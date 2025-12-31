@@ -24,6 +24,9 @@ export class UsersService {
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(temporaryPassword, salt)
+
+
+
     const newUser = await this.prisma.users.create({
       data: {
         user_name: createUserDto.user_name,
@@ -42,6 +45,16 @@ export class UsersService {
             type_id: createUserDto.type_id,
           },
         },
+
+        user_roles: {
+          create: [
+            {
+              role_id: Number(createUserDto.role_id)
+            }
+          ]
+
+        }
+
       },
       include: {
         persons: true,
@@ -67,7 +80,11 @@ export class UsersService {
       where: { user_name: username },
       include: {
         persons: true,
-        users_profiles: true
+        user_roles: {
+          include: {
+            roles: true
+          }
+        }
       }
     });
 

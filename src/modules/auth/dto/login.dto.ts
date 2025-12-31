@@ -13,7 +13,17 @@ export class LoginAuthDto {
 export interface UserValidated {
     id: number;
     user_name: string;
-    person_id?: number | null;
+    persons?: {
+        name: string;
+        last_name: string;
+        email: string;
+    } | null;
     first_login?: boolean;
-    role: number
+    role: number;
+    user_roles: {
+        roles: {
+            id: number;
+            name: string;
+        }
+    }[];
 }

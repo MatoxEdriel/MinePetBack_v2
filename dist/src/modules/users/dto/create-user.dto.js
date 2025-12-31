@@ -17,6 +17,7 @@ class CreateUserDto {
     last_name;
     email;
     type_id;
+    role_id;
     birthday_day;
     phone;
     address;
@@ -47,6 +48,11 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateUserDto.prototype, "type_id", void 0);
+__decorate([
+    (0, class_validator_1.IsInt)({ message: 'Rol que tendra el usuario' }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateUserDto.prototype, "role_id", void 0);
 __decorate([
     (0, class_validator_1.IsDateString)({}, { message: 'La fecha debe ser formato ISO8601 (YYYY-MM-DD)' }),
     (0, class_validator_1.IsOptional)(),

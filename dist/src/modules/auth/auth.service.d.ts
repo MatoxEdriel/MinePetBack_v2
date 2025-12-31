@@ -15,6 +15,9 @@ export declare class AuthService {
         user: {
             id: number;
             user_name: string;
+            fullName: string;
+            roles: string[];
+            rolesIds: number[];
         };
     }>;
     findAll(): string;

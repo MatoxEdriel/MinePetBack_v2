@@ -82,6 +82,13 @@ let UsersService = class UsersService {
                         type_id: createUserDto.type_id,
                     },
                 },
+                user_roles: {
+                    create: [
+                        {
+                            role_id: Number(createUserDto.role_id)
+                        }
+                    ]
+                }
             },
             include: {
                 persons: true,
@@ -101,7 +108,11 @@ let UsersService = class UsersService {
             where: { user_name: username },
             include: {
                 persons: true,
-                users_profiles: true
+                user_roles: {
+                    include: {
+                        roles: true
+                    }
+                }
             }
         });
     }
