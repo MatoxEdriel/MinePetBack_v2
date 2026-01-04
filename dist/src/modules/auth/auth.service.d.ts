@@ -14,7 +14,18 @@ export declare class AuthService {
         first_login: boolean | undefined;
         user: {
             id: number;
-            user_name: string;
+            user_name: string | null;
+            fullName: string;
+            roles: string[];
+            rolesIds: number[];
+        };
+    }>;
+    changePassword(userId: number, newPass: string): Promise<{
+        access_token: string;
+        first_login: boolean | undefined;
+        user: {
+            id: number;
+            user_name: string | null;
             fullName: string;
             roles: string[];
             rolesIds: number[];

@@ -8,16 +8,16 @@ export declare class UsersController {
         persons: {
             id: number;
             name: string | null;
+            type_id: number | null;
             last_name: string | null;
             email: string | null;
             birthday_day: Date | null;
             phone: string | null;
             address: string | null;
-            type_id: number | null;
         } | null;
+        user_name: string | null;
         id: number;
         person_id: number | null;
-        user_name: string | null;
         created_at: Date | null;
         updated_at: Date | null;
         user_created: string | null;
@@ -29,16 +29,5 @@ export declare class UsersController {
         message: string;
         user: any;
     };
-    changePassword(req: any, newPassword: string): Promise<{
-        id: number;
-        person_id: number | null;
-        user_name: string | null;
-        password: string | null;
-        created_at: Date | null;
-        updated_at: Date | null;
-        user_created: string | null;
-        deleted_at: Date | null;
-        first_login: boolean | null;
-        attempts: number | null;
-    }>;
+    changePassword(req: any, newPassword: string): Promise<import("../auth/dto/login.dto").UserValidated>;
 }

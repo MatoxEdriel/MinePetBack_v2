@@ -32,7 +32,7 @@ let UsersController = class UsersController {
         };
     }
     async changePassword(req, newPassword) {
-        return this.usersService.updateFirstPassword(req.user.sub, newPassword);
+        return this.usersService.updatePassword(req.user.sub, newPassword);
     }
 };
 exports.UsersController = UsersController;

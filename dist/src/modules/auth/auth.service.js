@@ -82,6 +82,15 @@ let AuthService = class AuthService {
             }
         };
     }
+    async changePassword(userId, newPass) {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(newPass, salt);
+        const userUpdate = await this.userServices.updatePassword(userId, hash);
+        if (!userUpdate) {
+            throw new Error('Error al actualizar el usuario');
+        }
+        return this.login(userUpdate);
+    }
     findAll() {
         return `This action returns all auth`;
     }

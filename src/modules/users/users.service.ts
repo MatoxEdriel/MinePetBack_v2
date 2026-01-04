@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'prisma/PrismaService.service';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+import { UserValidated } from '../auth/dto/login.dto';
 
 @Injectable()
 export class UsersService {
@@ -90,27 +91,56 @@ export class UsersService {
 
   }
 
-  async updateFirstPassword(userId: number, newPass: string) {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPass, salt);
 
-    return this.prisma.users.update({
+  
+  async updatePassword(userId: number, hashedPassword: string): Promise<UserValidated> {
+    const user = await this.prisma.users.update({
       where: { id: userId },
       data: {
         password: hashedPassword,
         first_login: false,
       },
+
+      include: {
+
+        persons: true,
+        user_roles: {
+          include: {
+            roles: true
+          }
+        }
+
+      }
     });
+    const userValidated: UserValidated = {
+      id: user.id,
+      user_name: user.user_name,
+      first_login: user.first_login ?? false,
+
+      persons: user.persons ? {
+        name: user.persons.name ?? '',
+        last_name: user.persons.last_name ?? '',
+        email: user.persons.email ?? ''
+      } : null,
+
+      role: user.user_roles.length > 0 ? user.user_roles[0].roles.id : 0,
+
+      user_roles: user.user_roles.map(ur => ({
+        roles: {
+          id: ur.roles.id,
+          name: ur.roles.name ?? ''
+        }
+      }))
+    };
+
+    return userValidated;
   }
 
-  
 
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
 }
+
+
+
+
+
+

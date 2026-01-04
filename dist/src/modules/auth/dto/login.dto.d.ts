@@ -2,9 +2,12 @@ export declare class LoginAuthDto {
     user_name: string;
     pass: string;
 }
+export declare class ChangePasswordDto {
+    pass: string;
+}
 export interface UserValidated {
     id: number;
-    user_name: string;
+    user_name: string | null;
     persons?: {
         name: string;
         last_name: string;

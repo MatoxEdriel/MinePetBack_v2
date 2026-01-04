@@ -25,6 +25,10 @@ let AuthController = class AuthController {
     async login(loginDto, req) {
         return this.authService.login(req.user);
     }
+    async changePassword(req, changePassDto) {
+        const userId = req.user.userId;
+        return this.authService.changePassword(userId, changePassDto.pass);
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -36,6 +40,15 @@ __decorate([
     __metadata("design:paramtypes", [login_dto_1.LoginAuthDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.Patch)('change-password'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, login_dto_1.ChangePasswordDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "changePassword", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

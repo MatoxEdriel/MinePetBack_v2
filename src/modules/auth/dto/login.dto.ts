@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class LoginAuthDto {
     @IsString()
@@ -10,9 +10,18 @@ export class LoginAuthDto {
     pass: string;
 }
 
+
+export class ChangePasswordDto {
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres ' })
+    pass: string;
+}
+
+
 export interface UserValidated {
     id: number;
-    user_name: string;
+    user_name: string | null;
     persons?: {
         name: string;
         last_name: string;

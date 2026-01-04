@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { LoginAuthDto } from './dto/login.dto';
+import { ChangePasswordDto, LoginAuthDto } from './dto/login.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 
@@ -18,6 +18,18 @@ export class AuthController {
 
     return this.authService.login(req.user);
   }
+
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('change-password')
+  async changePassword(@Request() req, @Body() changePassDto: ChangePasswordDto) {
+    const userId = req.user.userId;
+    return this.authService.changePassword(userId, changePassDto.pass);
+  }
+
+
+
+
 
 
 

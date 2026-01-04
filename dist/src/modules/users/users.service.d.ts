@@ -1,6 +1,6 @@
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'prisma/PrismaService.service';
+import { UserValidated } from '../auth/dto/login.dto';
 export declare class UsersService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -9,16 +9,16 @@ export declare class UsersService {
         persons: {
             id: number;
             name: string | null;
+            type_id: number | null;
             last_name: string | null;
             email: string | null;
             birthday_day: Date | null;
             phone: string | null;
             address: string | null;
-            type_id: number | null;
         } | null;
+        user_name: string | null;
         id: number;
         person_id: number | null;
-        user_name: string | null;
         created_at: Date | null;
         updated_at: Date | null;
         user_created: string | null;
@@ -28,18 +28,5 @@ export declare class UsersService {
     }>;
     findAll(): string;
     findByUserName(username: string): Promise<any | null>;
-    updateFirstPassword(userId: number, newPass: string): Promise<{
-        id: number;
-        person_id: number | null;
-        user_name: string | null;
-        password: string | null;
-        created_at: Date | null;
-        updated_at: Date | null;
-        user_created: string | null;
-        deleted_at: Date | null;
-        first_login: boolean | null;
-        attempts: number | null;
-    }>;
-    update(id: number, updateUserDto: UpdateUserDto): string;
-    remove(id: number): string;
+    updatePassword(userId: number, hashedPassword: string): Promise<UserValidated>;
 }

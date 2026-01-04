@@ -23,10 +23,10 @@ export class UsersController {
     };
   }
 
-  @UseGuards(AuthGuard('jwt')) 
+  @UseGuards(AuthGuard('jwt'))
   @Patch('change-first-password')
   async changePassword(@Request() req, @Body('newPassword') newPassword: string) {
-    return this.usersService.updateFirstPassword(req.user.sub, newPassword);
+    return this.usersService.updatePassword(req.user.sub, newPassword);
   }
 
 

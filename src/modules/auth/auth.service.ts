@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginAuthDto, UserValidated } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 
+
 @Injectable()
 export class AuthService {
 
@@ -52,8 +53,42 @@ export class AuthService {
   }
 
 
+  //!First login y cambio voluntario de dde contraseña 
+
+  async changePassword(userId: number, newPass: string) {
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(newPass, salt);
+
+    const userUpdate = await this.userServices.updatePassword(userId, hash)
+
+    if (!userUpdate) {
+      throw new Error('Error al actualizar el usuario');
+    }
+
+
+    return this.login(userUpdate)
+
+
+  }
+
+
+  //Este es para el cambio de contrasela con codigo OTP y correo
+  // async resetPasswordwithOTP(email: string, otpCode: string, newPass: string){
+
+  //   const isCodeValid = await this.va
+
+
+
+
+
+
+  // }
+
+
+
   //todo IMPLEMENTAR DOBLE verificacion de dos casos de uso 
- 
+
 
 
   findAll() {
