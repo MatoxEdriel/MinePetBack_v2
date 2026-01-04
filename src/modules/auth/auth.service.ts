@@ -28,6 +28,7 @@ export class AuthService {
   }
 
 
+
   async login(user: UserValidated) {
     const roles = user.user_roles.map((ur) => ur.roles.name);
     const rolesIds = user.user_roles.map((ur) => ur.roles.id)
@@ -49,6 +50,10 @@ export class AuthService {
       }
     };
   }
+
+
+  //todo IMPLEMENTAR DOBLE verificacion de dos casos de uso 
+ 
 
 
   findAll() {

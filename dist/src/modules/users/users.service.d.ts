@@ -7,18 +7,18 @@ export declare class UsersService {
     create(createUserDto: CreateUserDto): Promise<{
         temporaryPassword: string;
         persons: {
+            id: number;
             name: string | null;
             last_name: string | null;
             email: string | null;
-            type_id: number | null;
             birthday_day: Date | null;
             phone: string | null;
             address: string | null;
-            id: number;
+            type_id: number | null;
         } | null;
-        user_name: string | null;
         id: number;
         person_id: number | null;
+        user_name: string | null;
         created_at: Date | null;
         updated_at: Date | null;
         user_created: string | null;
@@ -29,9 +29,9 @@ export declare class UsersService {
     findAll(): string;
     findByUserName(username: string): Promise<any | null>;
     updateFirstPassword(userId: number, newPass: string): Promise<{
-        user_name: string | null;
         id: number;
         person_id: number | null;
+        user_name: string | null;
         password: string | null;
         created_at: Date | null;
         updated_at: Date | null;
