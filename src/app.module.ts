@@ -1,3 +1,5 @@
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from './core/filter/http-exception.filter';
 import { MenuController } from './modules/menu/menu.controller';
 import { MenuService } from './modules/menu/menu.service';
 import { Module } from '@nestjs/common';
@@ -31,6 +33,10 @@ import { MailModule } from './modules/business/mail/mail.module';
   controllers: [
     MenuController, AppController],
   providers: [
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
     MenuService, AppService],
 })
 export class AppModule { }

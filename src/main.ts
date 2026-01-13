@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TransformInterceptor } from './core/interceptor/transform.interceptor';
+import { AllExceptionsFilter } from './core/filter/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,7 +33,11 @@ async function bootstrap() {
 
   //con esto hacemos que las respuesta que envio tengan un formato 
 
+
+  
   app.useGlobalInterceptors(new TransformInterceptor())
+
+  app.useGlobalFilters(new AllExceptionsFilter())
 
 
 
