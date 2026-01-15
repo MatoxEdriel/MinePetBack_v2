@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 
 import * as bcrypt from 'bcrypt';
@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'prisma/PrismaService.service';
 import { MailService } from '../business/mail/mail.service';
+import { ConfigService } from '@nestjs/config';
 
 
 @Injectable()
@@ -18,6 +19,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly prismaService: PrismaService,
     private readonly emailService: MailService,
+    private readonly configService: ConfigService
   ) {
   }
 
@@ -73,6 +75,75 @@ export class AuthService {
 
 
     return this.login(userUpdate)
+
+
+  }
+
+
+  async resetPasswordWithToken(userId: number, newPass: string) {
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(newPass, salt);
+
+    await this.userServices.updatePassword(userId, hash);
+    return {
+      message: 'Contraseña actualizada exitosamente'
+    }
+  }
+
+
+  async verifyOtpGetToken(email: string, codeInput: string) {
+
+    const user = await this.userServices.findByEmail(email);
+
+
+    const storedReset = await this.prismaService.password_resets.findFirst({
+      where: { user_id: user.id }
+    });
+
+
+    //Expiracion 
+    if (new Date() > storedReset!.expires_at) {
+
+      throw new BadRequestException('El codigo ha expirado');
+
+
+    }
+
+    //aqui validamos xd
+
+    const isValid = await bcrypt.compare(codeInput, storedReset!.token_hash);
+
+    if (!isValid) {
+      throw new BadRequestException('Codigo incorrecto')
+    }
+
+    const recoverySecret = this.configService.get<string>('JWT_RECOVERY_SECRET');
+    const recoveryExpires = this.configService.get<string>('JWT_RECOVERY_EXPIRES_IN');
+
+
+    if (!recoverySecret || !recoveryExpires) {
+      throw new Error('Variables de entorno JWT_RECOVERY faltantes');
+    }
+
+    const payload = {
+      sub: user.id.toString(),
+      action: 'reset_password'
+
+    }
+
+
+    //todo cambiar el secretkey y la duracion para que sea corta el token para hacer!!! 
+
+
+    const recoveryToken = this.jwtService.sign(payload, { secret: recoverySecret, expiresIn: recoveryExpires as any })
+
+    //!RECORDAR LE PUEDES PASAR COMO PARTE DE JWT. y la firma pues para que se va a usar dentro del action  reset_password
+
+    await this.prismaService.password_resets.delete({ where: { id: storedReset!.id } })
+
+
+    return { recoveryToken }
 
 
   }

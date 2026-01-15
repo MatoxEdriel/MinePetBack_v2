@@ -3,12 +3,14 @@ import { UserValidated } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'prisma/PrismaService.service';
 import { MailService } from '../business/mail/mail.service';
+import { ConfigService } from '@nestjs/config';
 export declare class AuthService {
     private readonly userServices;
     private jwtService;
     private readonly prismaService;
     private readonly emailService;
-    constructor(userServices: UsersService, jwtService: JwtService, prismaService: PrismaService, emailService: MailService);
+    private readonly configService;
+    constructor(userServices: UsersService, jwtService: JwtService, prismaService: PrismaService, emailService: MailService, configService: ConfigService);
     validateUser(payload: {
         user_name: string;
         pass: string;
@@ -34,6 +36,12 @@ export declare class AuthService {
             roles: string[];
             rolesIds: number[];
         };
+    }>;
+    resetPasswordWithToken(userId: number, newPass: string): Promise<{
+        message: string;
+    }>;
+    verifyOtpGetToken(email: string, codeInput: string): Promise<{
+        recoveryToken: string;
     }>;
     sendRecoveryCode(email: string): Promise<{
         message: string;

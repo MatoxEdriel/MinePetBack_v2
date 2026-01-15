@@ -18,12 +18,18 @@ const auth_service_1 = require("./auth.service");
 const passport_1 = require("@nestjs/passport");
 const login_dto_1 = require("./dto/login.dto");
 const mail_service_1 = require("../business/mail/mail.service");
+const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 let AuthController = class AuthController {
     mailService;
     authService;
-    constructor(mailService, authService) {
+    jwtService;
+    configService;
+    constructor(mailService, authService, jwtService, configService) {
         this.mailService = mailService;
         this.authService = authService;
+        this.jwtService = jwtService;
+        this.configService = configService;
     }
     async login(loginDto, req) {
         return this.authService.login(req.user);
@@ -32,10 +38,29 @@ let AuthController = class AuthController {
         const userId = req.user.userId;
         return this.authService.changePassword(userId, changePassDto.pass);
     }
+    async resetPassword(newPass, authHeader) {
+        if (!authHeader)
+            throw new common_1.UnauthorizedException('Token es requerido');
+        const token = authHeader.split(' ')[1];
+        try {
+            const secret = this.configService.get('JWT_SECRET');
+            const decoded = this.jwtService.verify(token, { secret: secret });
+            if (decoded.action !== 'reset_password') {
+                throw new common_1.UnauthorizedException('Token inválido para esta operación');
+            }
+            return this.authService.resetPasswordWithToken(decoded.sub, newPass);
+        }
+        catch (error) {
+            throw new common_1.UnauthorizedException('Token inválido o expirado');
+        }
+    }
     async sendCode(email) {
         if (!email)
             throw new common_1.BadRequestException('Email es requerido');
         return this.authService.sendRecoveryCode(email);
+    }
+    async verifyCode(body) {
+        return this.authService.verifyOtpGetToken(body.email, body.code);
     }
 };
 exports.AuthController = AuthController;
@@ -58,15 +83,32 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "changePassword", null);
 __decorate([
+    (0, common_1.Post)('reset-password'),
+    __param(0, (0, common_1.Body)('newPassword')),
+    __param(1, (0, common_1.Headers)('authorization')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "resetPassword", null);
+__decorate([
     (0, common_1.Post)('send-code'),
     __param(0, (0, common_1.Body)('email')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "sendCode", null);
+__decorate([
+    (0, common_1.Post)('verify-code'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "verifyCode", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [mail_service_1.MailService,
-        auth_service_1.AuthService])
+        auth_service_1.AuthService,
+        jwt_1.JwtService,
+        config_1.ConfigService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map
