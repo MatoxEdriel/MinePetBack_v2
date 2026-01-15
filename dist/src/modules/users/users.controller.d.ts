@@ -24,6 +24,7 @@ export declare class UsersController {
         deleted_at: Date | null;
         first_login: boolean | null;
         attempts: number | null;
+        company: number | null;
     }>;
     getProfile(req: any): {
         message: string;

@@ -25,8 +25,11 @@ export declare class UsersService {
         deleted_at: Date | null;
         first_login: boolean | null;
         attempts: number | null;
+        company: number | null;
     }>;
     findAll(): string;
+    getAll(): void;
+    findByEmail(email: string): Promise<any | null>;
     findByUserName(username: string): Promise<any | null>;
     updatePassword(userId: number, hashedPassword: string): Promise<UserValidated>;
 }

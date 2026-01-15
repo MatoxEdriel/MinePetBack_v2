@@ -47,12 +47,18 @@ const common_1 = require("@nestjs/common");
 const users_service_1 = require("../users/users.service");
 const bcrypt = __importStar(require("bcrypt"));
 const jwt_1 = require("@nestjs/jwt");
+const PrismaService_service_1 = require("../../../prisma/PrismaService.service");
+const mail_service_1 = require("../business/mail/mail.service");
 let AuthService = class AuthService {
     userServices;
     jwtService;
-    constructor(userServices, jwtService) {
+    prismaService;
+    emailService;
+    constructor(userServices, jwtService, prismaService, emailService) {
         this.userServices = userServices;
         this.jwtService = jwtService;
+        this.prismaService = prismaService;
+        this.emailService = emailService;
     }
     async validateUser(payload) {
         const user = await this.userServices.findByUserName(payload.user_name);
@@ -91,6 +97,30 @@ let AuthService = class AuthService {
         }
         return this.login(userUpdate);
     }
+    async sendRecoveryCode(email) {
+        const user = await this.userServices.findByEmail(email);
+        if (!user) {
+            return {
+                message: 'Si el correo existe en nuestro sistema, recibiras un codigo en breve'
+            };
+        }
+        const code = Math.floor(1000 + Math.random() * 9000).toString();
+        const hash = await bcrypt.hash(code, 10);
+        await this.prismaService.$transaction([
+            this.prismaService.password_resets.deleteMany({ where: { user_id: user.id } }),
+            this.prismaService.password_resets.create({
+                data: {
+                    user_id: user.id,
+                    token_hash: hash,
+                    expires_at: new Date(Date.now() + 10 * 60 * 1000)
+                }
+            })
+        ]);
+        const sentOtp = await this.emailService.sendOtp(email, code);
+        return {
+            message: 'Si el correo existe en nuestro sistema, recibiras un codigo en breve'
+        };
+    }
     findAll() {
         return `This action returns all auth`;
     }
@@ -105,6 +135,8 @@ exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_service_1.UsersService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        PrismaService_service_1.PrismaService,
+        mail_service_1.MailService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

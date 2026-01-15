@@ -4,6 +4,9 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { LoginAuthDto, UserValidated } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'prisma/PrismaService.service';
+import { MailService } from '../business/mail/mail.service';
 
 
 @Injectable()
@@ -13,6 +16,8 @@ export class AuthService {
   constructor(
     private readonly userServices: UsersService,
     private jwtService: JwtService,
+    private readonly prismaService: PrismaService,
+    private readonly emailService: MailService,
   ) {
   }
 
@@ -72,6 +77,38 @@ export class AuthService {
 
   }
 
+
+  async sendRecoveryCode(email: string) {
+    const user = await this.userServices.findByEmail(email);
+
+    if (!user) {
+      return {
+        message: 'Si el correo existe en nuestro sistema, recibiras un codigo en breve'
+      }
+
+    }
+
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    const hash = await bcrypt.hash(code, 10);
+
+    await this.prismaService.$transaction([
+      this.prismaService.password_resets.deleteMany(
+        { where: { user_id: user.id } }),
+
+
+      this.prismaService.password_resets.create({
+        data: {
+          user_id: user.id,
+          token_hash: hash,
+          expires_at: new Date(Date.now() + 10 * 60 * 1000)
+        }
+      })
+    ]);
+    const sentOtp = await this.emailService.sendOtp(email, code);
+    return {
+      message: 'Si el correo existe en nuestro sistema, recibiras un codigo en breve'
+    }
+  }
 
   //Este es para el cambio de contrasela con codigo OTP y correo
   // async resetPasswordwithOTP(email: string, otpCode: string, newPass: string){

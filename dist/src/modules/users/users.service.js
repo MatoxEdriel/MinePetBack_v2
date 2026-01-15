@@ -103,6 +103,21 @@ let UsersService = class UsersService {
     findAll() {
         return `This action returns all users`;
     }
+    getAll() {
+    }
+    async findByEmail(email) {
+        const user = await this.prisma.users.findFirst({
+            where: {
+                persons: {
+                    email: email
+                }
+            },
+            include: {
+                persons: true
+            }
+        });
+        return user;
+    }
     async findByUserName(username) {
         return this.prisma.users.findFirst({
             where: { user_name: username },

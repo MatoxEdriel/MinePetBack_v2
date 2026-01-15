@@ -76,6 +76,29 @@ export class UsersService {
   }
 
 
+  getAll() {
+
+
+
+
+
+
+  }
+
+  async findByEmail(email: string): Promise<any | null> {
+    const user = await this.prisma.users.findFirst({
+      where: {
+        persons: {
+          email: email
+        }
+      },
+      include: {
+        persons: true
+      }
+    });
+    return user;
+  }
+
   async findByUserName(username: string): Promise<any | null> {
     return this.prisma.users.findFirst({
       where: { user_name: username },
@@ -92,7 +115,7 @@ export class UsersService {
   }
 
 
-  
+
   async updatePassword(userId: number, hashedPassword: string): Promise<UserValidated> {
     const user = await this.prisma.users.update({
       where: { id: userId },

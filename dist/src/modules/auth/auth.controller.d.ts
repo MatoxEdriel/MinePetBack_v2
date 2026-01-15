@@ -29,6 +29,5 @@ export declare class AuthController {
     }>;
     sendCode(email: string): Promise<{
         message: string;
-        email: string;
     }>;
 }

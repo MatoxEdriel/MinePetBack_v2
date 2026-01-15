@@ -34,16 +34,8 @@ let AuthController = class AuthController {
     }
     async sendCode(email) {
         if (!email)
-            throw new common_1.BadRequestException('Email requerido');
-        const code = Math.floor(1000 + Math.random() * 9000).toString();
-        const sent = await this.mailService.sendOtp(email, code);
-        if (!sent) {
-            throw new common_1.BadRequestException('No se pudo enviar el correo.');
-        }
-        return {
-            message: 'Código enviado correctamente',
-            email: email
-        };
+            throw new common_1.BadRequestException('Email es requerido');
+        return this.authService.sendRecoveryCode(email);
     }
 };
 exports.AuthController = AuthController;
