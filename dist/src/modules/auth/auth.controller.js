@@ -42,17 +42,12 @@ let AuthController = class AuthController {
         if (!authHeader)
             throw new common_1.UnauthorizedException('Token es requerido');
         const token = authHeader.split(' ')[1];
-        try {
-            const secret = this.configService.get('JWT_SECRET');
-            const decoded = this.jwtService.verify(token, { secret: secret });
-            if (decoded.action !== 'reset_password') {
-                throw new common_1.UnauthorizedException('Token inválido para esta operación');
-            }
-            return this.authService.resetPasswordWithToken(decoded.sub, newPass);
+        const secret = this.configService.get('JWT_RECOVERY_SECRET');
+        const decoded = this.jwtService.verify(token, { secret: secret });
+        if (decoded.action !== 'reset_password') {
+            throw new common_1.UnauthorizedException('Token inválido para esta operación');
         }
-        catch (error) {
-            throw new common_1.UnauthorizedException('Token inválido o expirado');
-        }
+        return this.authService.resetPasswordWithToken(decoded.sub, newPass);
     }
     async sendCode(email) {
         if (!email)
@@ -84,7 +79,7 @@ __decorate([
 ], AuthController.prototype, "changePassword", null);
 __decorate([
     (0, common_1.Post)('reset-password'),
-    __param(0, (0, common_1.Body)('newPassword')),
+    __param(0, (0, common_1.Body)('newPass')),
     __param(1, (0, common_1.Headers)('authorization')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),

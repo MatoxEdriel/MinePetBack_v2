@@ -85,7 +85,7 @@ export class AuthService {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(newPass, salt);
 
-    await this.userServices.updatePassword(userId, hash);
+    await this.userServices.updatePassword(Number(userId), hash);
     return {
       message: 'Contraseña actualizada exitosamente'
     }

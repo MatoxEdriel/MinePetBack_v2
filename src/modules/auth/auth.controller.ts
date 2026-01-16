@@ -39,36 +39,20 @@ export class AuthController {
 
   @Post('reset-password')
   async resetPassword(
-    @Body('newPassword') newPass: string,
+    @Body('newPass') newPass: string,
     @Headers('authorization') authHeader: string
   ) {
 
     if (!authHeader) throw new UnauthorizedException('Token es requerido');
 
     const token = authHeader.split(' ')[1]; //sacar token del encabezado 
-
-    try {
-
-      const secret = this.configService.get<string>('JWT_SECRET');
-      const decoded = this.jwtService.verify(token, { secret: secret });
-
-      //aqui verificacion que action es del token 
-
-      if (decoded.action !== 'reset_password') {
-        throw new UnauthorizedException('Token inválido para esta operación');
-      }
-
-
-
-
-      return this.authService.resetPasswordWithToken(decoded.sub, newPass);
+    const secret = this.configService.get<string>('JWT_RECOVERY_SECRET');
+    const decoded = this.jwtService.verify(token, { secret: secret });
+    //aqui verificacion que action es del token 
+    if (decoded.action !== 'reset_password') {
+      throw new UnauthorizedException('Token inválido para esta operación');
     }
-    catch (error) {
-
-      throw new UnauthorizedException('Token inválido o expirado');
-
-    }
-
+    return this.authService.resetPasswordWithToken(decoded.sub, newPass);
 
   }
 
