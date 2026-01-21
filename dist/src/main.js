@@ -18,7 +18,7 @@ async function bootstrap() {
         .build();
     const configService = app.get(config_1.ConfigService);
     const port = configService.get('PORT') || 3000;
-    const corsOrigin = configService.get('CORS_ORIGIN') || '*';
+    const corsOrigin = configService.get('CORS_ORIGIN')?.split(',') || '*';
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api', app, document);
     app.enableCors({
@@ -35,8 +35,7 @@ async function bootstrap() {
     app.getHttpAdapter().get('/', (req, res) => {
         res.redirect('/api');
     });
-    await app.listen(port);
-    swagger_1.SwaggerModule.setup('api', app, document);
+    await app.listen(port, '0.0.0.0');
     console.log(`Server up by ${port}`);
 }
 bootstrap();

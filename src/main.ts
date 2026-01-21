@@ -22,7 +22,7 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT') || 3000;
 
-  const corsOrigin = configService.get<string>('CORS_ORIGIN') || '*';
+  const corsOrigin = configService.get<string>('CORS_ORIGIN')?.split(',') || '*';
 
   const document = SwaggerModule.createDocument(app, config);
 
@@ -58,9 +58,8 @@ async function bootstrap() {
   });
 
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
-  SwaggerModule.setup('api', app, document)
   //dirigir automaticamente
 
 
