@@ -16,6 +16,7 @@ model persons {
   phone               String?              @db.VarChar(255)
   address             String?              @db.VarChar(255)
   type_identification type_identification? @relation(fields: [type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pet_owners          pet_owners[]
   users               users[]
 }
 
@@ -30,6 +31,7 @@ model roles {
   updated_at        DateTime?           @db.Timestamp(6)
   deleted_at        DateTime?           @db.Timestamp(6)
   roles_permissions roles_permissions[]
+  tenant_users      tenant_users[]
   user_roles        user_roles[]
 }
 
@@ -40,20 +42,26 @@ model type_identification {
 }
 
 model users {
-  id              Int               @id @default(autoincrement())
-  person_id       Int?
-  user_name       String?           @db.VarChar(255)
-  password        String?           @db.VarChar(255)
-  created_at      DateTime?         @default(now()) @db.Timestamp(6)
-  updated_at      DateTime?         @db.Timestamp(6)
-  user_created    String?           @db.VarChar(255)
-  deleted_at      DateTime?         @db.Timestamp(6)
-  first_login     Boolean?
-  attempts        Int?
-  company         Int?
-  password_resets password_resets[]
-  user_roles      user_roles[]
-  persons         persons?          @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                 Int                  @id @default(autoincrement())
+  person_id          Int?
+  user_name          String?              @db.VarChar(255)
+  password           String?              @db.VarChar(255)
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?            @db.Timestamp(6)
+  user_created       String?              @db.VarChar(255)
+  deleted_at         DateTime?            @db.Timestamp(6)
+  first_login        Boolean?
+  attempts           Int?
+  company            Int?
+  consultation       consultation[]
+  dewormings         dewormings[]
+  password_resets    password_resets[]
+  performed_services performed_services[]
+  prescriptions      prescriptions[]
+  tenant_users       tenant_users[]
+  user_roles         user_roles[]
+  persons            persons?             @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vaccinations       vaccinations[]
 }
 
 model permissions {
@@ -95,4 +103,261 @@ model password_resets {
   expires_at DateTime @db.Timestamptz(6)
   is_used    Boolean? @default(false)
   users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+}
+
+model breed {
+  id          Int     @id @default(autoincrement())
+  species_id  Int     @db.SmallInt
+  name        String  @db.VarChar(100)
+  description String?
+  species     species @relation(fields: [species_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pets        pets[]
+}
+
+model consultation {
+  id                 BigInt               @id @default(autoincrement())
+  tenant_id          Int
+  pet_id             BigInt
+  vet_user_id        Int
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  reason             String?              @db.VarChar(255)
+  anamnesis          String?
+  temperature        Decimal?             @db.Decimal(4, 1)
+  heart_rate         Int?
+  respiratory_rate   Int?
+  weight_kg          Decimal?             @db.Decimal(5, 2)
+  mucosa             String?              @db.VarChar(100)
+  diagnosis          String?
+  internal_notes     String?
+  status             String?              @db.VarChar(20)
+  pets               pets                 @relation(fields: [pet_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants            tenants              @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users              users                @relation(fields: [vet_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  performed_services performed_services[]
+  prescriptions      prescriptions[]
+}
+
+model deworming_products {
+  id                    Int          @id @default(autoincrement())
+  name                  String       @db.VarChar(150)
+  species_id            Int?         @db.SmallInt
+  type                  String?      @db.VarChar(50)
+  default_validity_days Int?
+  is_active             Boolean?     @default(true)
+  species               species?     @relation(fields: [species_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dewormings            dewormings[]
+}
+
+model dewormings {
+  id                   BigInt             @id @default(autoincrement())
+  tenant_id            Int
+  pet_id               BigInt
+  vet_user_id          Int
+  deworming_product_id Int
+  application_date     DateTime?          @default(dbgenerated("CURRENT_DATE")) @db.Date
+  lot_number           String?            @db.VarChar(50)
+  brand                String?            @db.VarChar(100)
+  next_due_date        DateTime?          @db.Date
+  notes                String?
+  current_weight_kg    Decimal?           @db.Decimal(5, 2)
+  created_at           DateTime?          @default(now()) @db.Timestamptz(6)
+  deworming_products   deworming_products @relation(fields: [deworming_product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pets                 pets               @relation(fields: [pet_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants              tenants            @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                users              @relation(fields: [vet_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model performed_services {
+  id              BigInt          @id @default(autoincrement())
+  tenant_id       Int
+  pet_id          BigInt
+  service_id      Int
+  vet_user_id     Int
+  consultation_id BigInt?
+  performed_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  notes           String?
+  price_charged   Decimal?        @db.Decimal(10, 2)
+  created_at      DateTime?       @default(now()) @db.Timestamptz(6)
+  consultation    consultation?   @relation(fields: [consultation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pets            pets            @relation(fields: [pet_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  service_catalog service_catalog @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants         tenants         @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users           @relation(fields: [vet_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model pet_owners {
+  id         BigInt   @id @default(autoincrement())
+  pet_id     BigInt
+  person_id  Int
+  is_primary Boolean? @default(false)
+  persons    persons  @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pets       pets     @relation(fields: [pet_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model pets {
+  id                 BigInt               @id @default(autoincrement())
+  name               String               @db.VarChar(100)
+  species_id         Int                  @db.SmallInt
+  breed_id           Int?
+  birthday_day       DateTime?            @db.Date
+  gender             String?              @db.Char(1)
+  microchip_code     String?              @db.VarChar(50)
+  weight_kg          Decimal?             @db.Decimal(5, 2)
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?            @db.Timestamptz(6)
+  consultation       consultation[]
+  dewormings         dewormings[]
+  performed_services performed_services[]
+  pet_owners         pet_owners[]
+  breed              breed?               @relation(fields: [breed_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  species            species              @relation(fields: [species_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prescriptions      prescriptions[]
+  vaccinations       vaccinations[]
+}
+
+model prescription_items {
+  id                   BigInt        @id @default(autoincrement())
+  prescriptions_id     BigInt
+  product_id           Int?
+  medication_name      String?       @db.VarChar(200)
+  dose_amount          Decimal?      @db.Decimal(10, 2)
+  dose_unit            String?       @db.VarChar(50)
+  frequency_hours      Int?
+  duration_days        Int?
+  total_quantity       Decimal?      @db.Decimal(10, 2)
+  administration_route String?       @db.VarChar(100)
+  instruction          String?
+  origin_type          String?       @db.VarChar(50)
+  prescriptions        prescriptions @relation(fields: [prescriptions_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  products             products?     @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model prescriptions {
+  id                 BigInt               @id @default(autoincrement())
+  tenant_id          Int
+  consultation_id    BigInt?
+  pet_id             BigInt
+  vet_user_id        Int
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  status             String?              @db.VarChar(50)
+  notes              String?
+  prescription_items prescription_items[]
+  consultation       consultation?        @relation(fields: [consultation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pets               pets                 @relation(fields: [pet_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants            tenants              @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users              users                @relation(fields: [vet_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model products {
+  id                       Int                  @id @default(autoincrement())
+  tenant_id                Int
+  name                     String               @db.VarChar(200)
+  sku_code                 String?              @db.VarChar(100)
+  category_id              Int?                 @db.SmallInt
+  is_prescription_required Boolean?             @default(false)
+  cost_price               Decimal?             @db.Decimal(10, 2)
+  sale_price               Decimal?             @db.Decimal(10, 2)
+  tax_percent              Decimal?             @db.Decimal(5, 2)
+  current_stock            Decimal?             @db.Decimal(10, 2)
+  min_stock_alert          Decimal?             @db.Decimal(10, 2)
+  unit_type                String?              @db.VarChar(50)
+  is_active                Boolean?             @default(true)
+  created_at               DateTime?            @default(now()) @db.Timestamptz(6)
+  prescription_items       prescription_items[]
+  tenants                  tenants              @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model service_catalog {
+  id                 Int                  @id @default(autoincrement())
+  tenant_id          Int
+  name               String               @db.VarChar(200)
+  category           String?              @db.VarChar(100)
+  base_price         Decimal?             @db.Decimal(10, 2)
+  requires_consent   Boolean?             @default(false)
+  is_active          Boolean?             @default(true)
+  performed_services performed_services[]
+  tenants            tenants              @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model species {
+  id                 Int                  @id @default(autoincrement()) @db.SmallInt
+  name               String               @db.VarChar(100)
+  description        String?
+  breed              breed[]
+  deworming_products deworming_products[]
+  pets               pets[]
+  vaccine_products   vaccine_products[]
+}
+
+model subscriptions {
+  id                   Int       @id @default(autoincrement())
+  tenant_id            Int
+  plan_name            String?   @db.VarChar(100)
+  price                Decimal?  @db.Decimal(10, 2)
+  currency             String?   @default("USD") @db.VarChar(3)
+  start_date           DateTime? @db.Timestamptz(6)
+  end_date             DateTime? @db.Timestamptz(6)
+  status               String?   @db.VarChar(20)
+  payment_reference_id String?   @db.VarChar(255)
+  created_at           DateTime? @default(now()) @db.Timestamptz(6)
+  tenants              tenants   @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tenant_users {
+  id        BigInt   @id @default(autoincrement())
+  user_id   Int
+  tenant_id Int
+  role_id   Int      @db.SmallInt
+  is_active Boolean? @default(true)
+  roles     roles    @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants   tenants  @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users     users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([user_id, tenant_id])
+}
+
+model tenants {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @db.VarChar(150)
+  ruc                String?              @db.VarChar(20)
+  email_contact      String?              @db.VarChar(150)
+  is_active          Boolean?             @default(true)
+  created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  consultation       consultation[]
+  dewormings         dewormings[]
+  performed_services performed_services[]
+  prescriptions      prescriptions[]
+  products           products[]
+  service_catalog    service_catalog[]
+  subscriptions      subscriptions[]
+  tenant_users       tenant_users[]
+  vaccinations       vaccinations[]
+}
+
+model vaccinations {
+  id                 BigInt           @id @default(autoincrement())
+  tenant_id          Int
+  pet_id             BigInt
+  vaccine_product_id Int
+  vet_user_id        Int
+  application_date   DateTime?        @default(dbgenerated("CURRENT_DATE")) @db.Date
+  lot_number         String?          @db.VarChar(50)
+  brand              String?          @db.VarChar(100)
+  next_due_date      DateTime?        @db.Date
+  notes              String?
+  created_at         DateTime?        @default(now()) @db.Timestamptz(6)
+  pets               pets             @relation(fields: [pet_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants            tenants          @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vaccine_products   vaccine_products @relation(fields: [vaccine_product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users              users            @relation(fields: [vet_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model vaccine_products {
+  id                    Int            @id @default(autoincrement())
+  name                  String         @db.VarChar(150)
+  species_id            Int?           @db.SmallInt
+  default_validity_days Int?
+  is_active             Boolean?       @default(true)
+  vaccinations          vaccinations[]
+  species               species?       @relation(fields: [species_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
