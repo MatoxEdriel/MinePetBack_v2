@@ -17,7 +17,7 @@ exports.MASTER_MENU = [
         title: 'Servicios',
         items: [
             {
-                label: 'Registrar Reparación',
+                label: 'Registrar Consulta',
                 icon: 'fa-solid fa-circle-plus',
                 path: '/dashboard/services',
                 roles: ['ADMIN', 'Tecnico', 'Vendedor']
