@@ -10,6 +10,7 @@ import { UserValidated } from '../auth/dto/login.dto';
 export class UsersService {
 
 
+
   constructor(private prisma: PrismaService) { }
   async create(createUserDto: CreateUserDto) {
 

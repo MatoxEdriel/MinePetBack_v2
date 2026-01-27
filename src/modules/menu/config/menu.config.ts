@@ -8,7 +8,7 @@ export const MASTER_MENU: MenuSection[] = [
                 label: 'Dashboard',
                 icon: 'fa-solid fa-house',
                 path: '/dashboard/home',
-                roles: ['ADMIN', 'Tecnico', 'Vendedor']
+                roles: ['ADMIN', 'Dueño', 'Veterinario']
             }
 
 
@@ -23,7 +23,7 @@ export const MASTER_MENU: MenuSection[] = [
                 label: 'Registrar Consulta',
                 icon: 'fa-solid fa-circle-plus',
                 path: '/dashboard/services',
-                roles: ['ADMIN', 'Tecnico', 'Vendedor']
+                roles: ['ADMIN', 'Dueño', 'Veterinario']
             }
 
 
@@ -43,7 +43,7 @@ export const MASTER_MENU: MenuSection[] = [
                 label: 'Inventario',
                 icon: 'fa-solid fa-box-open',
                 path: '/dashboard/inventory',
-                roles: ['Admin', 'Técnico'],
+                roles: ['ADMIN', 'Veterinario'],
                 children: [
                     { label: 'Ver Stock', icon: 'fa-solid fa-list', path: '/dashboard/inventory/list' },
                     { label: 'Entradas/Salidas', icon: 'fa-solid fa-arrow-right-arrow-left', path: '/dashboard/inventory/movements' }

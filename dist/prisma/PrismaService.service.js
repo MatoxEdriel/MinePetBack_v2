@@ -13,7 +13,24 @@ exports.PrismaService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const adapter_pg_1 = require("@prisma/adapter-pg");
+const tenant_storage_1 = require("../src/interfaces/tenant-storage");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
+    clients = new Map();
+    get client() {
+        const schema = tenant_storage_1.tenantStorage.getStore();
+        const currentSchema = schema || 'public';
+        if (!this.clients.has(currentSchema)) {
+            const newClient = new client_1.PrismaClient({
+                datasources: {
+                    db: {
+                        url: `${process.env.DATABASE_URL}?schema=${currentSchema}`,
+                    },
+                },
+            });
+            this.clients.set(currentSchema, newClient);
+        }
+        return this.clients.get(currentSchema);
+    }
     constructor() {
         const pool = new adapter_pg_1.PrismaPg({ connectionString: process.env.DATABASE_URL });
         super({ adapter: pool });

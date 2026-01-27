@@ -18,7 +18,11 @@ const config_module_1 = require("@nestjs/config/dist/config.module");
 const prisma_module_1 = require("../prisma/prisma.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const users_module_1 = require("./modules/users/users.module");
+const tenant_middleware_1 = require("./core/tenant.middleware");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(tenant_middleware_1.TenantMiddleware).forRoutes({ path: '*', method: common_1.RequestMethod.ALL });
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
