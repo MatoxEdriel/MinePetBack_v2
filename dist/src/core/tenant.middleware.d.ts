@@ -1,5 +1,8 @@
 import { NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
+import { PrismaService } from 'prisma/PrismaService.service';
 export declare class TenantMiddleware implements NestMiddleware {
-    use(req: Request, res: Response, next: NextFunction): void;
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    use(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

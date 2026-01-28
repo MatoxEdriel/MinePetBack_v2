@@ -323,6 +323,7 @@ model tenants {
   email_contact      String?              @db.VarChar(150)
   is_active          Boolean?             @default(true)
   created_at         DateTime?            @default(now()) @db.Timestamptz(6)
+  domain             String?              @db.VarChar(255)
   consultation       consultation[]
   dewormings         dewormings[]
   performed_services performed_services[]

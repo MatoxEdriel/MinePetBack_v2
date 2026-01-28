@@ -14,34 +14,47 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const adapter_pg_1 = require("@prisma/adapter-pg");
 const tenant_storage_1 = require("../src/interfaces/tenant-storage");
+const config_1 = require("@nestjs/config");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
+    _configService;
     clients = new Map();
+    constructor(_configService) {
+        const dbUrl = _configService.get('DATABASE_URL');
+        if (!dbUrl) {
+            throw new Error('Database url no encontrada');
+        }
+        const pool = new adapter_pg_1.PrismaPg({ connectionString: dbUrl });
+        super({ adapter: pool });
+        this._configService = _configService;
+    }
+    async onModuleDestroy() {
+        for (const client of this.clients.values()) {
+            await client.$disconnect();
+        }
+    }
     get client() {
         const schema = tenant_storage_1.tenantStorage.getStore();
         const currentSchema = schema || 'public';
         if (!this.clients.has(currentSchema)) {
+            const databaseUrl = this._configService.get('DATABASE_URL');
+            if (!databaseUrl) {
+                throw new Error('Database not defined en el archivo .env');
+            }
             const newClient = new client_1.PrismaClient({
-                datasources: {
+                datasource: {
                     db: {
-                        url: `${process.env.DATABASE_URL}?schema=${currentSchema}`,
+                        url: `${databaseUrl}?schema=${currentSchema}`
                     },
-                },
+                }
             });
             this.clients.set(currentSchema, newClient);
         }
         return this.clients.get(currentSchema);
     }
-    constructor() {
-        const pool = new adapter_pg_1.PrismaPg({ connectionString: process.env.DATABASE_URL });
-        super({ adapter: pool });
-    }
-    async onModuleInit() {
-        await this.$connect();
-    }
 };
 exports.PrismaService = PrismaService;
 exports.PrismaService = PrismaService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [])
+    __metadata("design:paramtypes", [config_1.ConfigService])
 ], PrismaService);
 //# sourceMappingURL=PrismaService.service.js.map
