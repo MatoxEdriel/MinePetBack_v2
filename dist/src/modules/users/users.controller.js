@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const passport_1 = require("@nestjs/passport");
+const pagination_interface_1 = require("../../interfaces/pagination.interface");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
@@ -24,6 +25,9 @@ let UsersController = class UsersController {
     }
     async register(createUserDto) {
         return this.usersService.create(createUserDto);
+    }
+    async getAll(pagination) {
+        return this.usersService.getAll(pagination);
     }
     getProfile(req) {
         return {
@@ -43,6 +47,13 @@ __decorate([
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "register", null);
+__decorate([
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [pagination_interface_1.PaginationDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getAll", null);
 __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Get)('profile'),

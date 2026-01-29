@@ -5,6 +5,8 @@ import { PrismaService } from 'prisma/PrismaService.service';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { UserValidated } from '../auth/dto/login.dto';
+import { IUser } from './interfaces/users.interface';
+import { PaginatedResponse, PaginationDto } from 'src/interfaces/pagination.interface';
 
 @Injectable()
 export class UsersService {
@@ -77,15 +79,49 @@ export class UsersService {
   }
 
 
-  getAll() {
 
 
+  async getAll(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<IUser>> {
+    const page = Number(pagination.page ?? 1);
+    const limit = Number(pagination.limit ?? 10);
+
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      this.prisma.users.findMany({
+        skip,
+        take: limit,
+        orderBy: { id: 'desc' },
+        select: {
+          id: true,
+          user_name: true,
+          persons: {
+            select: {
+              name: true,
+              last_name: true,
+              email: true,
+              phone: true,
+              address: true,
+            },
+          },
+        },
+      }),
+      this.prisma.users.count(),
+    ]);
 
 
-
-
+    return {
+      items: users,
+      pagination: {
+        page,
+        limit,
+        total,
+        showing: users.length,
+      },
+    };
   }
-
   async findByEmail(email: string): Promise<any | null> {
     const user = await this.prisma.users.findFirst({
       where: {

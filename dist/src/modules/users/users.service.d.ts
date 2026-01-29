@@ -1,24 +1,26 @@
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'prisma/PrismaService.service';
 import { UserValidated } from '../auth/dto/login.dto';
+import { IUser } from './interfaces/users.interface';
+import { PaginatedResponse, PaginationDto } from 'src/interfaces/pagination.interface';
 export declare class UsersService {
     private prisma;
     constructor(prisma: PrismaService);
     create(createUserDto: CreateUserDto): Promise<{
         temporaryPassword: string;
         persons: {
+            id: number;
             name: string | null;
             last_name: string | null;
             email: string | null;
-            type_id: number | null;
             birthday_day: Date | null;
             phone: string | null;
             address: string | null;
-            id: number;
+            type_id: number | null;
         } | null;
-        user_name: string | null;
         id: number;
         person_id: number | null;
+        user_name: string | null;
         created_at: Date | null;
         updated_at: Date | null;
         user_created: string | null;
@@ -28,7 +30,7 @@ export declare class UsersService {
         company: number | null;
     }>;
     findAll(): string;
-    getAll(): void;
+    getAll(pagination: PaginationDto): Promise<PaginatedResponse<IUser>>;
     findByEmail(email: string): Promise<any | null>;
     findByUserName(username: string): Promise<any | null>;
     updatePassword(userId: number, hashedPassword: string): Promise<UserValidated>;
