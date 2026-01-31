@@ -44,47 +44,168 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MailService = void 0;
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
 const nodemailer = __importStar(require("nodemailer"));
 let MailService = class MailService {
+    _configService;
     transporter;
-    constructor() {
+    constructor(_configService) {
+        this._configService = _configService;
         this.transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
+            host: this._configService.get('HOST_EMAIL'),
+            port: this._configService.get('PORT_EMAIL'),
             secure: true,
             auth: {
-                user: 'ga99buggi@gmail.com',
-                pass: 'baad athf xnml seev'
+                user: this._configService.get('USER_EMAIL'),
+                pass: this._configService.get('PASS_EMAIL'),
             }
         });
     }
-    async sendOtp(email, code) {
-        const mailOptions = {
-            from: '"Soporte TechFix" <ga99buggi@gmail.com>',
-            to: email,
-            html: `
-        <div style="font-family: sans-serif; text-align: center; padding: 20px;">
-          <h2>Recuperación de Contraseña</h2>
-          <p>Tu código de seguridad es:</p>
-          <h1 style="color: #2563EB; font-size: 32px; letter-spacing: 5px;">${code}</h1>
-          <p>Este código expirará en 10 minutos.</p>
+    async sendMail(to, subject, html) {
+        await this.transporter.sendMail({
+            from: "'Bienvenido a la familia MinePet'",
+            to,
+            subject,
+            html
+        });
+        return true;
+    }
+    async sendTemporaryPassword(email, name, temporaryPassword) {
+        const html = `
+    <div style="
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #fdf2f8;
+      padding: 30px;
+    ">
+      <div style="
+        max-width: 480px;
+        margin: auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      ">
+
+        <h2 style="color:#be185d;">
+          ¡Bienvenido a MinePet! 🐾
+        </h2>
+
+        <p style="color:#444; font-size:14px;">
+          Hola <b>${name}</b>, tu cuenta ha sido creada correctamente.
+        </p>
+
+        <p style="margin-top:20px;">
+          Tu contraseña temporal es:
+        </p>
+
+        <div style="
+          background-color:#fce7f3;
+          border:2px dashed #be185d;
+          padding:15px;
+          border-radius:8px;
+          margin:20px 0;
+        ">
+          <span style="
+            font-size:28px;
+            font-weight:bold;
+            letter-spacing:4px;
+            color:#9d174d;
+          ">
+            ${temporaryPassword}
+          </span>
         </div>
-      `,
-        };
-        try {
-            const info = await this.transporter.sendMail(mailOptions);
-            console.log('Correo enviado con ID:', info.messageId);
-            return true;
-        }
-        catch (error) {
-            console.error('Error enviando el correo:', error);
-            return false;
-        }
+
+        <p style="font-size:13px; color:#555;">
+          Por seguridad, deberás cambiar esta contraseña
+          al iniciar sesión por primera vez.
+        </p>
+
+        <hr style="margin:25px 0; border:none; border-top:1px solid #fbcfe8;" />
+
+        <p style="font-size:12px; color:#9d174d;">
+          Equipo MinePet 
+        </p>
+
+      </div>
+    </div>
+  `;
+        return this.sendMail(email, 'Bienvenido a la familia MinePet -Contraseña Temporal', html);
+    }
+    async sendOtp(email, code) {
+        const html = `
+    <div style="
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #fdf2f8;
+      padding: 30px;
+    ">
+      <div style="
+        max-width: 480px;
+        margin: auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      ">
+        
+        <h2 style="
+          color: #be185d;
+          margin-bottom: 10px;
+        ">
+          Recuperación de contraseña
+        </h2>
+
+        <p style="
+          color: #444;
+          font-size: 14px;
+          margin-bottom: 20px;
+        ">
+          Usa el siguiente código para continuar con la recuperación de tu cuenta:
+        </p>
+
+        <div style="
+          background-color: #fce7f3;
+          border: 2px dashed #be185d;
+          padding: 15px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+        ">
+          <span style="
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 6px;
+            color: #9d174d;
+          ">
+            ${code}
+          </span>
+        </div>
+
+        <p style="
+          font-size: 12px;
+          color: #666;
+        ">
+          Este código expirará en <b>10 minutos</b>.<br>
+          Si no solicitaste este cambio, ignora este correo.
+        </p>
+
+        <hr style="margin: 25px 0; border: none; border-top: 1px solid #fbcfe8;" />
+
+        <p style="
+          font-size: 12px;
+          color: #9d174d;
+        ">
+          Equipo MinePet
+        </p>
+      </div>
+    </div>
+  `;
+        return this.sendMail(email, 'Código de recuperación', html);
     }
 };
 exports.MailService = MailService;
 exports.MailService = MailService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [])
+    __metadata("design:paramtypes", [config_1.ConfigService])
 ], MailService);
 //# sourceMappingURL=mail.service.js.map

@@ -7,13 +7,16 @@ import { randomBytes } from 'crypto';
 import { UserValidated } from '../auth/dto/login.dto';
 import { IUser } from './interfaces/users.interface';
 import { PaginatedResponse, PaginationDto } from 'src/interfaces/pagination.interface';
+import { MailService } from '../business/mail/mail.service';
 
 @Injectable()
 export class UsersService {
 
 
 
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private readonly _emailService: MailService,
+    private prisma: PrismaService) { }
   async create(createUserDto: CreateUserDto) {
 
     const temporaryPassword = randomBytes(4).toString('hex');
@@ -65,13 +68,17 @@ export class UsersService {
       },
     });
 
+    await this._emailService.sendTemporaryPassword(
+      createUserDto.email,
+      createUserDto.name,
+      temporaryPassword
+
+    )
+
     const { password, ...result } = newUser;
     return {
-      ...result,
-      temporaryPassword,
+      ...result
     };
-
-
   }
 
   findAll() {

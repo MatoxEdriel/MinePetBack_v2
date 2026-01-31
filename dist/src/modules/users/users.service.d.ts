@@ -3,11 +3,12 @@ import { PrismaService } from 'prisma/PrismaService.service';
 import { UserValidated } from '../auth/dto/login.dto';
 import { IUser } from './interfaces/users.interface';
 import { PaginatedResponse, PaginationDto } from 'src/interfaces/pagination.interface';
+import { MailService } from '../business/mail/mail.service';
 export declare class UsersService {
+    private readonly _emailService;
     private prisma;
-    constructor(prisma: PrismaService);
+    constructor(_emailService: MailService, prisma: PrismaService);
     create(createUserDto: CreateUserDto): Promise<{
-        temporaryPassword: string;
         persons: {
             id: number;
             name: string | null;

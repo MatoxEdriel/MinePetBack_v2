@@ -47,9 +47,12 @@ const common_1 = require("@nestjs/common");
 const PrismaService_service_1 = require("../../../prisma/PrismaService.service");
 const bcrypt = __importStar(require("bcrypt"));
 const crypto_1 = require("crypto");
+const mail_service_1 = require("../business/mail/mail.service");
 let UsersService = class UsersService {
+    _emailService;
     prisma;
-    constructor(prisma) {
+    constructor(_emailService, prisma) {
+        this._emailService = _emailService;
         this.prisma = prisma;
     }
     async create(createUserDto) {
@@ -94,10 +97,10 @@ let UsersService = class UsersService {
                 persons: true,
             },
         });
+        await this._emailService.sendTemporaryPassword(createUserDto.email, createUserDto.name, temporaryPassword);
         const { password, ...result } = newUser;
         return {
-            ...result,
-            temporaryPassword,
+            ...result
         };
     }
     findAll() {
@@ -203,6 +206,7 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [PrismaService_service_1.PrismaService])
+    __metadata("design:paramtypes", [mail_service_1.MailService,
+        PrismaService_service_1.PrismaService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map
